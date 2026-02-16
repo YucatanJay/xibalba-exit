@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0a0e1a">
+  <title>Xibalba Exit</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================================
+       CSS VARIABLES - DEFAULT THEME
+    ============================================ */
+    :root {
+      --bg-primary: #0a0e1a;
+      --bg-secondary: #0f1628;
+      --bg-card: rgba(255,255,255,0.04);
+      --bg-card-hover: rgba(255,255,255,0.07);
+      --accent: #00d4aa;
+      --accent-soft: rgba(0, 212, 170, 0.15);
+      --accent-glow: rgba(0, 212, 170, 0.3);
+      --gold: #f0a500;
+      --gold-soft: rgba(240, 165, 0, 0.15);
+      --text-primary: #e8eaf0;
+      --text-secondary: rgba(232, 234, 240, 0.55);
+      --text-muted: rgba(232, 234, 240, 0.3);
+      --border: rgba(255,255,255,0.06);
+      --border-accent: rgba(0, 212, 170, 0.3);
+      --urgency-low: #00d4aa;
+      --urgency-medium: #f0c040;
+      --urgency-high: #f08040;
+      --urgency-critical: #f04060;
+      --nav-bg: rgba(10, 14, 26, 0.95);
+      --font-display: 'Cinzel', serif;
+      --font-body: 'Nunito', sans-serif;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    /* PUNK MODE */
+    body.punk {
+      --bg-primary: #0d0010;
+      --bg-secondary: #150018;
+      --bg-card: rgba(255, 0, 200, 0.05);
+      --bg-card-hover: rgba(255, 0, 200, 0.1);
+      --accent: #ff00cc;
+      --accent-soft: rgba(255, 0, 200, 0.15);
+      --accent-glow: rgba(255, 0, 200, 0.4);
+      --gold: #aaff00;
+      --gold-soft: rgba(170, 255, 0, 0.15);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255,255,255,0.6);
+      --border: rgba(255, 0, 200, 0.15);
+      --border-accent: rgba(255, 0, 200, 0.5);
+    }
+
+    /* ============================================
+       BASE STYLES
+    ============================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(ellipse at 20% 10%, rgba(0, 212, 170, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 90%, rgba(0, 100, 180, 0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body.punk::before {
+      background:
+        radial-gradient(ellipse at 20% 10%, rgba(255, 0, 200, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 90%, rgba(100, 0, 255, 0.1) 0%, transparent 50%);
+    }
+
+    /* ============================================
+       APP SHELL
+    ============================================ */
+    #app {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      z-index: 1;
+    }
+
+    /* ============================================
+       SCREENS
+    ============================================ */
+    .screen {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0 0 80px 0;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .screen.active { display: block; }
+
+    /* ============================================
+       SCROLLBAR
+    ============================================ */
+    .screen::-webkit-scrollbar { width: 3px; }
+    .screen::-webkit-scrollbar-track { background: transparent; }
+    .screen::-webkit-scrollbar-thumb { background: var(--accent-soft); border-radius: 2px; }
+
+    /* ============================================
+       BOTTOM NAV
+    ============================================ */
+    #nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      display: flex;
+      background: var(--nav-bg);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 4px 8px;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .nav-item .nav-icon { font-size: 20px; transition: transform 0.2s; }
+    .nav-item .nav-label { font-size: 10px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.5px; transition: color 0.2s; }
+    .nav-item.active .nav-label { color: var(--accent); }
+    .nav-item.active .nav-icon { transform: scale(1.15); }
+
+    /* ============================================
+       PAGE HEADER
+    ============================================ */
+    .page-header {
+      padding: 52px 20px 8px;
+    }
+
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--text-primary);
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* ============================================
+       CARDS
+    ============================================ */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      transition: background 0.2s;
+    }
+
+    .card:active { background: var(--bg-card-hover); }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 20px 20px 10px;
+    }
+
+    /* ============================================
+       HOME SCREEN
+    ============================================ */
+    .home-hero {
+      padding: 52px 20px 20px;
+      text-align: center;
+    }
+
+    .greeting {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .greeting-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+
+    /* Progress Ring */
+    .progress-ring-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 24px 0 20px;
+    }
+
+    .progress-ring-svg { transform: rotate(-90deg); }
+
+    .ring-track { fill: none; stroke: var(--border); stroke-width: 8; }
+    .ring-fill {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      filter: drop-shadow(0 0 6px var(--accent-glow));
+    }
+
+    .ring-center {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ring-percent {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .ring-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .progress-ring-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Quick Log */
+    .quick-log-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 0 20px;
+    }
+
+    .log-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .log-btn:active { transform: scale(0.95); background: var(--accent-soft); border-color: var(--border-accent); }
+    .log-btn.logged { background: var(--accent-soft); border-color: var(--border-accent); }
+
+    .log-icon { font-size: 22px; }
+    .log-count { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--accent); }
+    .log-name { font-size: 11px; color: var(--text-secondary); font-weight: 600; }
+
+    /* Reminders */
+    .reminder-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      margin: 0 20px 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .reminder-icon {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: var(--accent-soft);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+
+    .reminder-text { flex: 1; }
+    .reminder-title { font-size: 14px; font-weight: 700; }
+    .reminder-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .reminder-time { font-size: 12px; color: var(--accent); font-weight: 600; }
+
+    /* Affirming Quote */
+    .affirm-card {
+      margin: 0 20px;
+      padding: 20px;
+      background: var(--accent-soft);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius);
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .affirm-heart { font-size: 20px; margin-bottom: 8px; }
+    .affirm-text {
+      font-size: 14px;
+      font-style: italic;
+      color: var(--text-primary);
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    .affirm-tap { font-size: 11px; color: var(--text-secondary); margin-top: 8px; }
+
+    /* ============================================
+       ORGANIZE SCREEN
+    ============================================ */
+    .today-date {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 0 20px;
+      margin-top: 4px;
+    }
+
+    /* Three Priorities */
+    .priority-list {
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .priority-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: all 0.2s;
+    }
+
+    .priority-item.done {
+      opacity: 0.5;
+      background: transparent;
+    }
+
+    .priority-item.done .priority-text {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .priority-check {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--border-accent);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .priority-check.checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .priority-check.checked::after {
+      content: '✓';
+      color: var(--bg-primary);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .priority-text {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 500;
+      outline: none;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+    }
+
+    .priority-text::placeholder { color: var(--text-muted); }
+
+    .priority-num {
+      font-family: var(--font-display);
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Monthly Goals */
+    .goal-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      margin: 0 20px 8px;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      border-left: 3px solid var(--urgency-low);
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .goal-item.urgent-medium { border-left-color: var(--urgency-medium); }
+    .goal-item.urgent-high { border-left-color: var(--urgency-high); }
+    .goal-item.urgent-critical {
+      border-left-color: var(--urgency-critical);
+      animation: pulse-red 2s infinite;
+    }
+
+    @keyframes pulse-red {
+      0%, 100% { box-shadow: none; }
+      50% { box-shadow: 0 0 12px rgba(240, 64, 96, 0.3); }
+    }
+
+    .goal-urgency-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--urgency-low);
+    }
+
+    .goal-item.urgent-medium .goal-urgency-dot { background: var(--urgency-medium); }
+    .goal-item.urgent-high .goal-urgency-dot { background: var(--urgency-high); }
+    .goal-item.urgent-critical .goal-urgency-dot { background: var(--urgency-critical); }
+
+    .goal-content { flex: 1; }
+    .goal-title { font-size: 14px; font-weight: 600; }
+    .goal-age { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    .goal-delete {
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      font-size: 16px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Add Goal */
+    .add-goal-wrap {
+      padding: 0 20px 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .add-goal-input {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .add-goal-input:focus { border-color: var(--border-accent); }
+    .add-goal-input::placeholder { color: var(--text-muted); }
+
+    .add-btn {
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      color: var(--bg-primary);
+      font-weight: 700;
+      font-size: 20px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ============================================
+       MINDFUL SCREEN
+    ============================================ */
+    .mindful-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      margin: 0 20px 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mindful-item:active { background: var(--bg-card-hover); transform: scale(0.98); }
+
+    .mindful-icon {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+
+    .mindful-content { flex: 1; }
+    .mindful-title { font-size: 15px; font-weight: 700; }
+    .mindful-meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+    .mindful-duration {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 700;
+      background: var(--accent-soft);
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+
+    /* Marcus Aurelius quote card */
+    .marcus-card {
+      margin: 0 20px 10px;
+      padding: 20px;
+      background: var(--gold-soft);
+      border: 1px solid rgba(240, 165, 0, 0.2);
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+
+    .marcus-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .marcus-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .marcus-quote {
+      font-family: var(--font-display);
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-primary);
+      font-style: italic;
+    }
+
+    .marcus-source {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 10px;
+    }
+
+    .marcus-tap { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+    /* Exercise Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: flex-end;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--bg-secondary);
+      border-radius: 24px 24px 0 0;
+      padding: 24px 20px 40px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-handle {
+      width: 40px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .modal-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    .modal-step {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 10px;
+    }
+
+    .step-num {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .step-text { font-size: 14px; line-height: 1.6; }
+
+    .modal-close {
+      width: 100%;
+      margin-top: 16px;
+      padding: 16px;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius);
+      color: var(--bg-primary);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ============================================
+       UNWIND SCREEN
+    ============================================ */
+    .unwind-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+      padding: 0 20px;
+      margin-bottom: 4px;
+    }
+
+    .prompt-card {
+      margin: 0 20px 10px;
+      padding: 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+    }
+
+    .prompt-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    .prompt-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-primary);
+      font-style: italic;
+    }
+
+    .prompt-tap { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+
+    .resource-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      margin: 0 20px 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      text-decoration: none;
+      color: var(--text-primary);
+      transition: all 0.2s;
+    }
+
+    .resource-link:active { background: var(--bg-card-hover); }
+
+    .resource-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--accent-soft);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+
+    .resource-content { flex: 1; }
+    .resource-name { font-size: 14px; font-weight: 700; }
+    .resource-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .resource-arrow { color: var(--text-muted); font-size: 16px; }
+
+    /* ============================================
+       MORE MENU
+    ============================================ */
+    .more-sheet {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 150;
+      align-items: flex-end;
+    }
+
+    .more-sheet.open { display: flex; }
+
+    .more-panel {
+      background: var(--bg-secondary);
+      border-radius: 24px 24px 0 0;
+      padding: 16px 20px 100px;
+      width: 100%;
+      animation: slideUp 0.25s ease;
+    }
+
+    .more-handle {
+      width: 40px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+
+    .more-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text-secondary);
+    }
+
+    .more-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .more-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .more-item:active { background: var(--bg-card-hover); transform: scale(0.95); }
+    .more-item-icon { font-size: 24px; }
+    .more-item-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+
+    /* ============================================
+       JOURNAL SCREEN
+    ============================================ */
+    .journal-entry-area {
+      margin: 0 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .journal-date {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .journal-textarea {
+      width: 100%;
+      min-height: 200px;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.7;
+      resize: none;
+    }
+
+    .journal-textarea::placeholder { color: var(--text-muted); }
+
+    .journal-save {
+      width: calc(100% - 40px);
+      margin: 12px 20px 0;
+      padding: 14px;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius);
+      color: var(--bg-primary);
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ============================================
+       SETTINGS SCREEN
+    ============================================ */
+    .settings-section {
+      margin: 0 20px 20px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+    }
+
+    .setting-info { flex: 1; }
+    .setting-title { font-size: 15px; font-weight: 600; }
+    .setting-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+    /* Toggle */
+    .toggle {
+      position: relative;
+      width: 48px; height: 28px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .toggle input { display: none; }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 14px;
+      transition: background 0.2s;
+    }
+
+    .toggle input:checked + .toggle-track { background: var(--accent); }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 4px; left: 4px;
+      width: 20px; height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .toggle input:checked ~ .toggle-thumb { transform: translateX(20px); }
+
+    /* Theme buttons */
+    .theme-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 0 20px;
+      margin-bottom: 20px;
+    }
+
+    .theme-btn {
+      padding: 16px;
+      border-radius: var(--radius);
+      border: 2px solid var(--border);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .theme-btn.active { border-color: var(--accent); background: var(--accent-soft); }
+    .theme-btn-icon { font-size: 24px; margin-bottom: 6px; }
+    .theme-btn-label { font-size: 13px; font-weight: 700; }
+
+    /* ============================================
+       RESOURCES SCREEN (Crisis + Addiction)
+    ============================================ */
+    .resource-card {
+      margin: 0 20px 10px;
+      padding: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .resource-card-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .resource-card-desc { font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; }
+    .resource-phone {
+      display: inline-block;
+      background: var(--accent-soft);
+      border: 1px solid var(--border-accent);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============================================
+       HOME SCREEN
+  ============================================ -->
+  <div id="screen-home" class="screen active">
+    <div class="home-hero">
+      <div class="greeting" id="greeting">Good morning</div>
+      <div class="greeting-sub">One thing at a time. You've got this.</div>
+
+      <div class="progress-ring-wrap">
+        <div class="progress-ring-container">
+          <svg class="progress-ring-svg" width="120" height="120">
+            <circle class="ring-track" cx="60" cy="60" r="50"/>
+            <circle class="ring-fill" id="ring-fill" cx="60" cy="60" r="50"
+              stroke-dasharray="314"
+              stroke-dashoffset="314"/>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-percent" id="ring-percent">0%</div>
+            <div class="ring-label">TODAY</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Quick Log</div>
+    <div class="quick-log-grid">
+      <button class="log-btn" id="log-water" onclick="log('water')">
+        <span class="log-icon">💧</span>
+        <span class="log-count" id="count-water">0</span>
+        <span class="log-name">Water</span>
+      </button>
+      <button class="log-btn" id="log-meals" onclick="log('meals')">
+        <span class="log-icon">🍽️</span>
+        <span class="log-count" id="count-meals">0</span>
+        <span class="log-name">Meals</span>
+      </button>
+      <button class="log-btn" id="log-outside" onclick="log('outside')">
+        <span class="log-icon">🌿</span>
+        <span class="log-count" id="count-outside">0</span>
+        <span class="log-name">Outside</span>
+      </button>
+    </div>
+
+    <div class="section-label">Upcoming Reminders</div>
+    <div class="reminder-card">
+      <div class="reminder-icon">💧</div>
+      <div class="reminder-text">
+        <div class="reminder-title">Drink water</div>
+        <div class="reminder-desc">Every 60 minutes</div>
+      </div>
+      <div class="reminder-time" id="water-time"></div>
+    </div>
+    <div class="reminder-card">
+      <div class="reminder-icon">🍽️</div>
+      <div class="reminder-text">
+        <div class="reminder-title">Breakfast</div>
+        <div class="reminder-desc">Time to eat something</div>
+      </div>
+      <div class="reminder-time">8:00 AM</div>
+    </div>
+    <div class="reminder-card">
+      <div class="reminder-icon">🌿</div>
+      <div class="reminder-text">
+        <div class="reminder-title">Go outside</div>
+        <div class="reminder-desc">Every 3h — get some air</div>
+      </div>
+      <div class="reminder-time" id="outside-time"></div>
+    </div>
+
+    <div class="section-label" style="margin-top:20px;"></div>
+    <div class="affirm-card" onclick="nextAffirmation()">
+      <div class="affirm-heart">🤍</div>
+      <div class="affirm-text" id="affirm-text">What you got done today is enough.</div>
+      <div class="affirm-tap">Tap for another</div>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+
+  <!-- ============================================
+       ORGANIZE SCREEN
+  ============================================ -->
+  <div id="screen-organize" class="screen">
+    <div class="page-header">
+      <div class="page-title">Organize</div>
+      <div class="page-subtitle">Break big things into small wins.</div>
+    </div>
+    <div class="today-date" id="today-date"></div>
+
+    <div class="section-label">Today's 3 Priorities</div>
+    <div class="priority-list" id="priority-list">
+      <div class="priority-item" id="p1">
+        <div class="priority-num">1</div>
+        <div class="priority-check" id="check-1" onclick="togglePriority(1)"></div>
+        <input class="priority-text" id="priority-1" placeholder="Most important thing today..." maxlength="80"
+          oninput="savePriorities()">
+      </div>
+      <div class="priority-item" id="p2">
+        <div class="priority-num">2</div>
+        <div class="priority-check" id="check-2" onclick="togglePriority(2)"></div>
+        <input class="priority-text" id="priority-2" placeholder="Second priority..." maxlength="80"
+          oninput="savePriorities()">
+      </div>
+      <div class="priority-item" id="p3">
+        <div class="priority-num">3</div>
+        <div class="priority-check" id="check-3" onclick="togglePriority(3)"></div>
+        <input class="priority-text" id="priority-3" placeholder="Third priority..." maxlength="80"
+          oninput="savePriorities()">
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:24px;">Monthly Goals
+      <span style="color:var(--text-muted);font-size:10px;margin-left:6px;">— ages into urgency</span>
+    </div>
+
+    <div class="add-goal-wrap">
+      <input class="add-goal-input" id="goal-input" placeholder="Add a goal..." maxlength="100"
+        onkeydown="if(event.key==='Enter') addGoal()">
+      <button class="add-btn" onclick="addGoal()">+</button>
+    </div>
+
+    <div id="goals-list"></div>
+    <div style="height:20px;"></div>
+  </div>
+
+  <!-- ============================================
+       MINDFUL SCREEN
+  ============================================ -->
+  <div id="screen-mindful" class="screen">
+    <div class="page-header">
+      <div class="page-title">Mindful</div>
+      <div class="page-subtitle">Quick exercises to ground and focus your mind.</div>
+    </div>
+
+    <div id="marcus-section"></div>
+
+    <div class="section-label">Exercises</div>
+    <div class="mindful-item" onclick="openExercise('box')">
+      <div class="mindful-icon">🫁</div>
+      <div class="mindful-content">
+        <div class="mindful-title">Box Breathing</div>
+        <div class="mindful-meta">Calm your nervous system</div>
+      </div>
+      <div class="mindful-duration">2 min</div>
+    </div>
+    <div class="mindful-item" onclick="openExercise('grounding')">
+      <div class="mindful-icon">🖐️</div>
+      <div class="mindful-content">
+        <div class="mindful-title">5-4-3-2-1 Grounding</div>
+        <div class="mindful-meta">Anchor to the present</div>
+      </div>
+      <div class="mindful-duration">3 min</div>
+    </div>
+    <div class="mindful-item" onclick="openExercise('bodyscan')">
+      <div class="mindful-icon">🧘</div>
+      <div class="mindful-content">
+        <div class="mindful-title">Quick Body Scan</div>
+        <div class="mindful-meta">Release tension you didn't know you had</div>
+      </div>
+      <div class="mindful-duration">2 min</div>
+    </div>
+    <div class="mindful-item" onclick="openExercise('reset')">
+      <div class="mindful-icon">🎯</div>
+      <div class="mindful-content">
+        <div class="mindful-title">Focus Reset</div>
+        <div class="mindful-meta">When you can't start a task</div>
+      </div>
+      <div class="mindful-duration">1 min</div>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+
+  <!-- ============================================
+       UNWIND SCREEN
+  ============================================ -->
+  <div id="screen-unwind" class="screen">
+    <div class="page-header">
+      <div class="page-title">Unwind</div>
+    </div>
+    <div class="unwind-subtitle">Take a positive break. You earned this.</div>
+
+    <div class="section-label">✍️ Writing Prompts</div>
+    <div class="prompt-card" onclick="nextPrompt('writing')">
+      <div class="prompt-label">✍️ Random Writing Prompt</div>
+      <div class="prompt-text" id="writing-prompt">Describe a color to someone who has never seen it.</div>
+      <div class="prompt-tap">Tap for a new prompt</div>
+    </div>
+
+    <div class="section-label">🎨 Art & Drawing</div>
+    <div class="prompt-card" onclick="nextPrompt('art')">
+      <div class="prompt-label">🎨 Quick Art Challenge</div>
+      <div class="prompt-text" id="art-prompt">Draw something from memory — a favorite place or pet.</div>
+      <div class="prompt-tap">Tap for a new challenge</div>
+    </div>
+
+    <div class="section-label">💡 Explore Something New</div>
+    <div class="prompt-card" onclick="nextPrompt('hobby')">
+      <div class="prompt-label">💡 Hobby Idea</div>
+      <div class="prompt-text" id="hobby-prompt">Learn a simple card trick or coin trick from a tutorial.</div>
+      <div class="prompt-tap">Tap for another idea</div>
+    </div>
+
+    <div class="section-label">📚 Free Learning Resources</div>
+    <a href="https://archive.org" target="_blank" class="resource-link">
+      <div class="resource-icon">📦</div>
+      <div class="resource-content">
+        <div class="resource-name">Internet Archive</div>
+        <div class="resource-desc">Free books, movies, music, and more</div>
+      </div>
+      <div class="resource-arrow">→</div>
+    </a>
+    <a href="https://www.gutenberg.org" target="_blank" class="resource-link">
+      <div class="resource-icon">📖</div>
+      <div class="resource-content">
+        <div class="resource-name">Project Gutenberg</div>
+        <div class="resource-desc">60,000+ free classic books</div>
+      </div>
+      <div class="resource-arrow">→</div>
+    </a>
+    <a href="https://www.khanacademy.org" target="_blank" class="resource-link">
+      <div class="resource-icon">🎓</div>
+      <div class="resource-content">
+        <div class="resource-name">Khan Academy</div>
+        <div class="resource-desc">Free courses on anything you're curious about</div>
+      </div>
+      <div class="resource-arrow">→</div>
+    </a>
+    <a href="https://www.duolingo.com" target="_blank" class="resource-link">
+      <div class="resource-icon">🦉</div>
+      <div class="resource-content">
+        <div class="resource-name">Duolingo</div>
+        <div class="resource-desc">Learn a language in small, fun lessons</div>
+      </div>
+      <div class="resource-arrow">→</div>
+    </a>
+    <a href="https://scratch.mit.edu" target="_blank" class="resource-link">
+      <div class="resource-icon">🐱</div>
+      <div class="resource-content">
+        <div class="resource-name">Scratch</div>
+        <div class="resource-desc">Create stories, games, and animations</div>
+      </div>
+      <div class="resource-arrow">→</div>
+    </a>
+    <div style="height:20px;"></div>
+  </div>
+
+  <!-- ============================================
+       JOURNAL SCREEN
+  ============================================ -->
+  <div id="screen-journal" class="screen">
+    <div class="page-header">
+      <div class="page-title">Journal</div>
+      <div class="page-subtitle">Your thoughts. Your space. No judgment.</div>
+    </div>
+    <div class="journal-entry-area">
+      <div class="journal-date" id="journal-date"></div>
+      <textarea class="journal-textarea" id="journal-text"
+        placeholder="What's on your mind today? There are no wrong answers here..."></textarea>
+    </div>
+    <button class="journal-save" onclick="saveJournal()">Save Entry</button>
+    <div style="height:20px;"></div>
+  </div>
+
+  <!-- ============================================
+       SETTINGS SCREEN
+  ============================================ -->
+  <div id="screen-settings" class="screen">
+    <div class="page-header">
+      <div class="page-title">Settings</div>
+      <div class="page-subtitle">Tune the app to work for your brain.</div>
+    </div>
+
+    <div class="section-label">Theme</div>
+    <div class="theme-grid">
+      <div class="theme-btn active" id="theme-default" onclick="setTheme('default')">
+        <div class="theme-btn-icon">🌊</div>
+        <div class="theme-btn-label">Default</div>
+      </div>
+      <div class="theme-btn" id="theme-punk" onclick="setTheme('punk')">
+        <div class="theme-btn-icon">⚡</div>
+        <div class="theme-btn-label">Punk</div>
+      </div>
+    </div>
+
+    <div class="section-label">Reminders</div>
+    <div class="settings-section">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-title">Water Reminders</div>
+          <div class="setting-desc">Gentle nudges to hydrate</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-water" checked onchange="saveSettings()">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-title">Meal Reminders</div>
+          <div class="setting-desc">Don't forget to eat</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-meals" onchange="saveSettings()">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-title">Go Outside</div>
+          <div class="setting-desc">Fresh air & sunlight breaks</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-outside" checked onchange="saveSettings()">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="section-label">Philosophy</div>
+    <div class="settings-section">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-title">Marcus Aurelius Mode</div>
+          <div class="setting-desc">Meditations quotes in Mindful tab</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-marcus" checked onchange="saveMarcus()">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="section-label">About</div>
+    <div class="settings-section">
+      <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:4px;">
+        <div class="setting-title" style="font-family:var(--font-display);">Xibalba Exit</div>
+        <div class="setting-desc">The exit from the underworld. Open source. Free forever.</div>
+        <div class="setting-desc" style="margin-top:4px;color:var(--accent);">v1.0.0 — YucatanJay</div>
+      </div>
+    </div>
+    <div style="height:20px;"></div>
+  </div>
+
+  <!-- ============================================
+       BOTTOM NAV
+  ============================================ -->
+  <nav id="nav">
+    <div class="nav-item active" onclick="navigate('home')">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">HOME</span>
+    </div>
+    <div class="nav-item" onclick="navigate('organize')">
+      <span class="nav-icon">📋</span>
+      <span class="nav-label">ORGANIZE</span>
+    </div>
+    <div class="nav-item" onclick="navigate('mindful')">
+      <span class="nav-icon">🧘</span>
+      <span class="nav-label">MINDFUL</span>
+    </div>
+    <div class="nav-item" onclick="navigate('unwind')">
+      <span class="nav-icon">✨</span>
+      <span class="nav-label">UNWIND</span>
+    </div>
+    <div class="nav-item" onclick="openMore()">
+      <span class="nav-icon">⋯</span>
+      <span class="nav-label">MORE</span>
+    </div>
+  </nav>
+
+  <!-- MORE SHEET -->
+  <div class="more-sheet" id="more-sheet" onclick="closeMore(event)">
+    <div class="more-panel">
+      <div class="more-handle"></div>
+      <div class="more-title">More</div>
+      <div class="more-grid">
+        <div class="more-item" onclick="navigate('journal');closeMore()">
+          <div class="more-item-icon">📓</div>
+          <div class="more-item-label">Journal</div>
+        </div>
+        <div class="more-item" onclick="navigate('settings');closeMore()">
+          <div class="more-item-icon">⚙️</div>
+          <div class="more-item-label">Settings</div>
+        </div>
+        <div class="more-item" onclick="showResources();closeMore()">
+          <div class="more-item-icon">🆘</div>
+          <div class="more-item-label">Resources</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXERCISE MODAL -->
+  <div class="modal-overlay" id="exercise-modal" onclick="closeModal(event)">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-subtitle" id="modal-subtitle"></div>
+      <div id="modal-steps"></div>
+      <button class="modal-close" onclick="closeModalDirect()">Done ✓</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================
+// DATA
+// ============================================
+
+const affirmations = [
+  "What you got done today is enough.",
+  "Small steps move you forward.",
+  "Your worth is not measured by your productivity.",
+  "Progress is not a straight line, and that is perfectly fine.",
+  "You are more than a to-do list.",
+  "You are allowed to take things one step at a time.",
+  "Struggling does not mean failing. It means you are trying.",
+  "You deserve rest without having to earn it.",
+  "One thing at a time. You have got this.",
+  "The exit is always closer than you think."
+];
+
+const marcusQuotes = [
+  { quote: "You have power over your mind, not outside events. Realize this and you will find strength.", source: "Meditations, Book IV" },
+  { quote: "The impediment to action advances action. What stands in the way becomes the way.", source: "Meditations, Book V" },
+  { quote: "Never let the future disturb you. You will meet it, if you have to, with the same weapons of reason which today arm you against the present.", source: "Meditations, Book VII" },
+  { quote: "Confine yourself to the present.", source: "Meditations, Book VIII" },
+  { quote: "The best revenge is to be unlike him who performed the injury.", source: "Meditations, Book VI" },
+  { quote: "When you wake up in the morning, tell yourself: the people I deal with today will be meddling, ungrateful, arrogant, dishonest, jealous and surly. But I have seen the beauty of good, and the ugliness of evil.", source: "Meditations, Book II" },
+  { quote: "Waste no more time arguing about what a good man should be. Be one.", source: "Meditations, Book X" },
+  { quote: "If it is not right, do not do it; if it is not true, do not say it.", source: "Meditations, Book XII" },
+  { quote: "The universe is change; our life is what our thoughts make it.", source: "Meditations, Book IV" },
+  { quote: "Accept the things to which fate binds you, and love the people with whom fate brings you together.", source: "Meditations, Book VI" }
+];
+
+const writingPrompts = [
+  "Describe a color to someone who has never seen it.",
+  "Write about a moment when you felt completely free.",
+  "What would you tell your 10-year-old self?",
+  "Describe the ocean from memory.",
+  "Write about something you lost that you didn't realize you would miss.",
+  "What does home feel like?",
+  "Write about a person who changed your life without knowing it.",
+  "If you could dive anywhere in the world, where and why?",
+  "Describe what courage feels like from the inside.",
+  "Write about a time you fell and got back up."
+];
+
+const artPrompts = [
+  "Draw something from memory — a favorite place or pet.",
+  "Sketch the view from your window right now.",
+  "Draw your hands.",
+  "Create a map of a place that exists only in your mind.",
+  "Draw something using only circles.",
+  "Illustrate a feeling without using a face.",
+  "Draw a cenote from memory or imagination.",
+  "Sketch something you see every day but never really look at."
+];
+
+const hobbyPrompts = [
+  "Learn a simple card trick or coin trick from a tutorial.",
+  "Try origami — fold a simple crane.",
+  "Learn three new words in Spanish today.",
+  "Watch a 10-minute documentary about ancient civilizations.",
+  "Try a simple breathing exercise you've never done before.",
+  "Learn one chord on any instrument.",
+  "Write down 5 things you've always wanted to know about.",
+  "Read the first page of a classic book on Gutenberg."
+];
+
+const exercises = {
+  box: {
+    title: "Box Breathing",
+    subtitle: "Calm your nervous system in 2 minutes.",
+    steps: [
+      { num: "Step 1", text: "Breathe IN slowly for 4 counts. Feel your lungs fill completely." },
+      { num: "Step 2", text: "HOLD your breath for 4 counts. Stay still." },
+      { num: "Step 3", text: "Breathe OUT slowly for 4 counts. Let everything go." },
+      { num: "Step 4", text: "HOLD empty for 4 counts. Then repeat 4 times." }
+    ]
+  },
+  grounding: {
+    title: "5-4-3-2-1 Grounding",
+    subtitle: "Anchor to the present moment.",
+    steps: [
+      { num: "5 things", text: "Name 5 things you can SEE around you right now." },
+      { num: "4 things", text: "Name 4 things you can TOUCH. Actually touch them." },
+      { num: "3 things", text: "Name 3 things you can HEAR." },
+      { num: "2 things", text: "Name 2 things you can SMELL." },
+      { num: "1 thing", text: "Name 1 thing you can TASTE." }
+    ]
+  },
+  bodyscan: {
+    title: "Quick Body Scan",
+    subtitle: "Release tension you didn't know you had.",
+    steps: [
+      { num: "Head", text: "Relax your jaw. Unclench your teeth. Let your tongue rest." },
+      { num: "Neck & Shoulders", text: "Drop your shoulders away from your ears. Roll them gently back." },
+      { num: "Chest", text: "Take one deep breath. Let your chest rise fully, then fall." },
+      { num: "Hands", text: "Open your hands. Stretch your fingers. Release the grip." },
+      { num: "Full body", text: "Now feel the ground or chair beneath you. You are here. You are safe." }
+    ]
+  },
+  reset: {
+    title: "Focus Reset",
+    subtitle: "When you can't start a task — do this first.",
+    steps: [
+      { num: "Step 1", text: "Close everything. One blank screen or just close your eyes." },
+      { num: "Step 2", text: "Say out loud (or write): 'The only thing I need to do right now is ___.' Fill in one thing." },
+      { num: "Step 3", text: "Set a timer for just 5 minutes. Not an hour. Just 5." },
+      { num: "Step 4", text: "Start the one thing. The momentum will carry you." }
+    ]
+  }
+};
+
+// ============================================
+// STATE
+// ============================================
+let state = {
+  logs: { water: 0, meals: 0, outside: 0 },
+  affirmIndex: 0,
+  priorities: ['', '', ''],
+  priorityDone: [false, false, false],
+  goals: [],
+  marcusIndex: 0,
+  theme: 'default',
+  settings: { water: true, meals: false, outside: true, marcus: true },
+  writingIdx: 0, artIdx: 0, hobbyIdx: 0,
+  currentScreen: 'home'
+};
+
+// ============================================
+// INIT
+// ============================================
+function init() {
+  loadState();
+  updateGreeting();
+  updateRing();
+  updateTodayDate();
+  updateReminders();
+  renderGoals();
+  renderMarcus();
+  loadJournal();
+  applyTheme();
+  setInterval(updateReminders, 60000);
+  setInterval(updateGreeting, 60000);
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('xibalba-state');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Reset logs daily
+      const today = new Date().toDateString();
+      if (parsed.lastDate !== today) {
+        parsed.logs = { water: 0, meals: 0, outside: 0 };
+        parsed.priorityDone = [false, false, false];
+        parsed.lastDate = today;
+      }
+      state = { ...state, ...parsed };
+    }
+    // Load priorities
+    for (let i = 1; i <= 3; i++) {
+      const el = document.getElementById(`priority-${i}`);
+      if (el) el.value = state.priorities[i-1] || '';
+      const check = document.getElementById(`check-${i}`);
+      if (check && state.priorityDone[i-1]) {
+        check.classList.add('checked');
+        document.getElementById(`p${i}`)?.classList.add('done');
+      }
+    }
+    // Load logs display
+    ['water','meals','outside'].forEach(k => {
+      document.getElementById(`count-${k}`).textContent = state.logs[k];
+      if (state.logs[k] > 0) document.getElementById(`log-${k}`).classList.add('logged');
+    });
+    // Load settings toggles
+    document.getElementById('toggle-water').checked = state.settings.water !== false;
+    document.getElementById('toggle-meals').checked = state.settings.meals === true;
+    document.getElementById('toggle-outside').checked = state.settings.outside !== false;
+    document.getElementById('toggle-marcus').checked = state.settings.marcus !== false;
+  } catch(e) { console.log('Fresh start'); }
+}
+
+function saveState() {
+  state.lastDate = new Date().toDateString();
+  localStorage.setItem('xibalba-state', JSON.stringify(state));
+}
+
+// ============================================
+// NAVIGATION
+// ============================================
+function navigate(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  const screenMap = { home: 0, organize: 1, mindful: 2, unwind: 3 };
+  const targetScreen = document.getElementById(`screen-${screen}`);
+  if (targetScreen) {
+    targetScreen.classList.add('active');
+    targetScreen.scrollTop = 0;
+  }
+
+  if (screenMap[screen] !== undefined) {
+    document.querySelectorAll('.nav-item')[screenMap[screen]]?.classList.add('active');
+  }
+
+  state.currentScreen = screen;
+
+  if (screen === 'mindful') renderMarcus();
+  if (screen === 'journal') loadJournal();
+}
+
+function openMore() {
+  document.getElementById('more-sheet').classList.add('open');
+}
+
+function closeMore(e) {
+  if (!e || e.target.id === 'more-sheet') {
+    document.getElementById('more-sheet').classList.remove('open');
+  }
+}
+
+function showResources() {
+  // Show a simple resources modal
+  const modal = document.getElementById('exercise-modal');
+  document.getElementById('modal-title').textContent = 'Resources';
+  document.getElementById('modal-subtitle').textContent = 'You are not alone. Help is here.';
+  document.getElementById('modal-steps').innerHTML = `
+    <div class="modal-step">
+      <div class="step-num">Crisis Line</div>
+      <div class="step-text">988 Suicide & Crisis Lifeline — Call or text <strong>988</strong></div>
+    </div>
+    <div class="modal-step">
+      <div class="step-num">Crisis Text</div>
+      <div class="step-text">Text HOME to <strong>741741</strong> — Crisis Text Line, 24/7</div>
+    </div>
+    <div class="modal-step">
+      <div class="step-num">Addiction Support</div>
+      <div class="step-text">SAMHSA Helpline: <strong>1-800-662-4357</strong> — Free, confidential, 24/7</div>
+    </div>
+    <div class="modal-step">
+      <div class="step-num">AA / NA</div>
+      <div class="step-text">aa.org / na.org — Find meetings anywhere in the world</div>
+    </div>
+    <div class="modal-step">
+      <div class="step-num">Eating Disorders</div>
+      <div class="step-text">National Alliance helpline: <strong>1-866-662-1235</strong></div>
+    </div>
+  `;
+  modal.classList.add('open');
+}
+
+// ============================================
+// HOME
+// ============================================
+function updateGreeting() {
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greeting').textContent = greet;
+}
+
+function log(type) {
+  state.logs[type]++;
+  document.getElementById(`count-${type}`).textContent = state.logs[type];
+  document.getElementById(`log-${type}`).classList.add('logged');
+  updateRing();
+  saveState();
+
+  // Haptic if available
+  if (navigator.vibrate) navigator.vibrate(30);
+}
+
+function updateRing() {
+  const total = state.logs.water + state.logs.meals + state.logs.outside;
+  const target = 8 + 3 + 3; // 8 waters, 3 meals, 3 outside
+  const pct = Math.min(100, Math.round((total / 14) * 100));
+  const circumference = 314;
+  const offset = circumference - (pct / 100) * circumference;
+
+  document.getElementById('ring-fill').style.strokeDashoffset = offset;
+  document.getElementById('ring-percent').textContent = pct + '%';
+}
+
+function updateReminders() {
+  const now = new Date();
+  const waterNext = new Date(now.getTime() + 60 * 60 * 1000);
+  const outsideNext = new Date(now.getTime() + 3 * 60 * 60 * 1000);
+
+  document.getElementById('water-time').textContent = formatTime(waterNext);
+  document.getElementById('outside-time').textContent = formatTime(outsideNext);
+}
+
+function formatTime(d) {
+  let h = d.getHours(), m = d.getMinutes();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return `${h}:${m.toString().padStart(2,'0')} ${ampm}`;
+}
+
+function nextAffirmation() {
+  state.affirmIndex = (state.affirmIndex + 1) % affirmations.length;
+  document.getElementById('affirm-text').textContent = affirmations[state.affirmIndex];
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+
+// ============================================
+// ORGANIZE
+// ============================================
+function updateTodayDate() {
+  const d = new Date();
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('today-date').textContent =
+    `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}`;
+  document.getElementById('journal-date').textContent =
+    `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+function savePriorities() {
+  state.priorities = [
+    document.getElementById('priority-1').value,
+    document.getElementById('priority-2').value,
+    document.getElementById('priority-3').value
+  ];
+  saveState();
+}
+
+function togglePriority(num) {
+  const idx = num - 1;
+  state.priorityDone[idx] = !state.priorityDone[idx];
+  const check = document.getElementById(`check-${num}`);
+  const item = document.getElementById(`p${num}`);
+  check.classList.toggle('checked', state.priorityDone[idx]);
+  item.classList.toggle('done', state.priorityDone[idx]);
+  saveState();
+  updateRing();
+}
+
+function addGoal() {
+  const input = document.getElementById('goal-input');
+  const text = input.value.trim();
+  if (!text) return;
+  state.goals.push({ text, created: Date.now() });
+  input.value = '';
+  saveState();
+  renderGoals();
+}
+
+function deleteGoal(idx) {
+  state.goals.splice(idx, 1);
+  saveState();
+  renderGoals();
+}
+
+function getUrgencyClass(created) {
+  const days = (Date.now() - created) / (1000 * 60 * 60 * 24);
+  if (days >= 21) return 'urgent-critical';
+  if (days >= 14) return 'urgent-high';
+  if (days >= 7) return 'urgent-medium';
+  return '';
+}
+
+function getAgeText(created) {
+  const days = Math.floor((Date.now() - created) / (1000 * 60 * 60 * 24));
+  if (days === 0) return 'Added today';
+  if (days === 1) return '1 day old';
+  return `${days} days old`;
+}
+
+function renderGoals() {
+  const list = document.getElementById('goals-list');
+  if (!state.goals.length) {
+    list.innerHTML = `<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:20px;">No goals yet. Add one above.</div>`;
+    return;
+  }
+  // Sort by urgency (most urgent first)
+  const sorted = [...state.goals].map((g, i) => ({...g, origIdx: i}))
+    .sort((a, b) => a.created - b.created);
+
+  list.innerHTML = sorted.map(g => `
+    <div class="goal-item ${getUrgencyClass(g.created)}">
+      <div class="goal-urgency-dot"></div>
+      <div class="goal-content">
+        <div class="goal-title">${g.text}</div>
+        <div class="goal-age">${getAgeText(g.created)}</div>
+      </div>
+      <div class="goal-delete" onclick="deleteGoal(${g.origIdx})">✕</div>
+    </div>
+  `).join('');
+}
+
+// ============================================
+// MINDFUL
+// ============================================
+function renderMarcus() {
+  const section = document.getElementById('marcus-section');
+  if (!state.settings.marcus) {
+    section.innerHTML = '';
+    return;
+  }
+  const q = marcusQuotes[state.marcusIndex];
+  section.innerHTML = `
+    <div class="section-label">⚔️ Marcus Aurelius</div>
+    <div class="marcus-card" onclick="nextMarcus()">
+      <div class="marcus-header">
+        <span class="marcus-badge">⚔️ Meditations</span>
+      </div>
+      <div class="marcus-quote">"${q.quote}"</div>
+      <div class="marcus-source">— ${q.source}</div>
+      <div class="marcus-tap">Tap for next quote</div>
+    </div>
+  `;
+}
+
+function nextMarcus() {
+  state.marcusIndex = (state.marcusIndex + 1) % marcusQuotes.length;
+  saveState();
+  renderMarcus();
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+
+function openExercise(type) {
+  const ex = exercises[type];
+  document.getElementById('modal-title').textContent = ex.title;
+  document.getElementById('modal-subtitle').textContent = ex.subtitle;
+  document.getElementById('modal-steps').innerHTML = ex.steps.map(s => `
+    <div class="modal-step">
+      <div class="step-num">${s.num}</div>
+      <div class="step-text">${s.text}</div>
+    </div>
+  `).join('');
+  document.getElementById('exercise-modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target.id === 'exercise-modal') closeModalDirect();
+}
+
+function closeModalDirect() {
+  document.getElementById('exercise-modal').classList.remove('open');
+}
+
+// ============================================
+// UNWIND
+// ============================================
+function nextPrompt(type) {
+  const prompts = { writing: writingPrompts, art: artPrompts, hobby: hobbyPrompts };
+  const idxKey = `${type}Idx`;
+  state[idxKey] = (state[idxKey] + 1) % prompts[type].length;
+  document.getElementById(`${type}-prompt`).textContent = prompts[type][state[idxKey]];
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+
+// ============================================
+// JOURNAL
+// ============================================
+function loadJournal() {
+  const today = new Date().toDateString();
+  const saved = localStorage.getItem(`journal-${today}`);
+  if (saved) document.getElementById('journal-text').value = saved;
+}
+
+function saveJournal() {
+  const today = new Date().toDateString();
+  const text = document.getElementById('journal-text').value;
+  localStorage.setItem(`journal-${today}`, text);
+  if (navigator.vibrate) navigator.vibrate([30, 50, 30]);
+  // Brief visual feedback
+  const btn = document.querySelector('.journal-save');
+  btn.textContent = 'Saved ✓';
+  setTimeout(() => btn.textContent = 'Save Entry', 2000);
+}
+
+// ============================================
+// SETTINGS
+// ============================================
+function setTheme(theme) {
+  state.theme = theme;
+  applyTheme();
+  saveState();
+}
+
+function applyTheme() {
+  document.body.classList.toggle('punk', state.theme === 'punk');
+  document.getElementById('theme-default').classList.toggle('active', state.theme === 'default');
+  document.getElementById('theme-punk').classList.toggle('active', state.theme === 'punk');
+}
+
+function saveSettings() {
+  state.settings = {
+    water: document.getElementById('toggle-water').checked,
+    meals: document.getElementById('toggle-meals').checked,
+    outside: document.getElementById('toggle-outside').checked,
+    marcus: document.getElementById('toggle-marcus').checked
+  };
+  saveState();
+}
+
+function saveMarcus() {
+  saveSettings();
+  renderMarcus();
+}
+
+// ============================================
+// START
+// ============================================
+init();
+</script>
+</body>
+</html>

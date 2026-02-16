@@ -1,0 +1,11 @@
+{
+  "appId": "com.xibalba.exit",
+  "appName": "Xibalba Exit",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#0a0e1a"
+  }
+}

@@ -1,0 +1,65 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Set up Java (needed for Android build)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Install Capacitor
+        run: |
+          npm install
+          npx cap add android || true
+          npx cap sync android
+
+      - name: Build debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Rename APK
+        run: |
+          mv android/app/build/outputs/apk/debug/app-debug.apk \
+             android/app/build/outputs/apk/debug/xibalba-exit.apk
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: xibalba-exit-apk
+          path: android/app/build/outputs/apk/debug/xibalba-exit.apk
+          retention-days: 30
+
+      - name: Create/Update Release
+        uses: softprops/action-gh-release@v1
+        if: github.ref == 'refs/heads/main'
+        with:
+          tag_name: latest
+          name: Xibalba Exit - Latest Build
+          files: android/app/build/outputs/apk/debug/xibalba-exit.apk
+          body: |
+            🌊 Latest build of Xibalba Exit
+            The exit from the underworld. One step at a time.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
